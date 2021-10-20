@@ -36,6 +36,6 @@ export class UserService {
   }
 
   async login(username: string): Promise<User> {
-    return await this.model.findOne({ username: username });
+    return await this.model.findOne({ username: username }).lean();
   }
 }

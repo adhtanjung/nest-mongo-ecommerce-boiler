@@ -10,10 +10,12 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import * as argon2 from 'argon2';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enum/role.enum';
+import { RolesGuard } from 'src/guard/roles.guards';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -22,6 +24,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly service: UserService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get()
   async index() {
     return await this.service.findAll();
@@ -36,7 +41,8 @@ export class UserController {
       throw new HttpException('User tidak ditemukan', HttpStatus.NOT_FOUND);
     }
   }
-  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
@@ -50,7 +56,7 @@ export class UserController {
         email: res.email,
         name: res.name ?? '',
         phone: res.phone ?? '',
-        roles: res.roles ?? '',
+        roles: res.role ?? '',
       };
     } catch (err) {
       throw new HttpException(

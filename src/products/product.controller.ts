@@ -6,9 +6,11 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BaseProductDto } from './dto/base-product.dto';
 import { ProductService } from './product.service';
 
+@ApiTags('Product')
 @Controller('products')
 export class ProductController {
   constructor(private readonly service: ProductService) {}
@@ -27,7 +29,6 @@ export class ProductController {
       throw new HttpException(err.message, err.status);
     }
   }
-
   @Get('filtered')
   async findFiltered(@Query('price') price: number) {
     return await this.service.findFilter(price);
